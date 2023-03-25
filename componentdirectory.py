@@ -6,7 +6,7 @@ import sqlite3
 class ComponentDirectory(object):
 
     def __init__(self):
-        self.con = sqlite3.connect('components.db')
+        self.con = sqlite3.connect('dbs/components.db')
         self.con.row_factory = sqlite3.Row
         self.cur = self.con.cursor()
         self.attribute_names = ['partnumber', 'parttype', 'value', 'footprint',
