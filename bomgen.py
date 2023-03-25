@@ -176,13 +176,25 @@ def combine_boms(input_boms, directory):
                 }
     return list(final_bom.values())
 
+def update_parts_db(urls):
+    db = ComponentDirectory()
+    db.cleanup()
+    db.setup()
+    for url in urls:
+        print("Getting data from {}".format(url))
+        component_data = codecs.iterdecode(
+            urllib.request.urlopen(url), 'utf-8')
+        for row in csv.DictReader(component_data, skipinitialspace=True):
+            db.load_csv_row(row)
+    del(db)
 
 if __name__ == '__main__':
     config = ConfigParser()
     config.read(config_file)
-    component_data_url = config['components']['data_url']
+    urls = config['ComponentURLs']
+    component_urls = [urls[key] for key in urls.keys()]
 
-    parser = argparse.ArgumentParser(description='price up kicad BOM')
+    parser = argparse.ArgumentParser(description='put together an order from BOMs')
     parser.add_argument(
         'cmd', choices=['gen', 'update'], help='command to run')
     parser.add_argument('-b', '--boms', nargs='*',
@@ -203,13 +215,4 @@ if __name__ == '__main__':
         sort_bom(final_bom)
         write_bom_csv(output_file, final_bom)
     elif args.cmd == 'update':
-        print("Getting data from {}".format(component_data_url))
-        component_data = codecs.iterdecode(
-            urllib.request.urlopen(component_data_url), 'utf-8')
-        print(component_data)
-        c = ComponentDirectory()
-        c.cleanup()
-        c.setup()
-        for row in csv.DictReader(component_data, skipinitialspace=True):
-            c.load_csv_row(row)
-        del(c)
+        update_parts_db(component_urls)
