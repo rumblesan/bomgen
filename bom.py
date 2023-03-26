@@ -18,7 +18,16 @@ class BOM:
         "socket": re.compile(r"bananasocket_.*"),
     }
 
-    columns = ['Part', 'Value', 'Tolerance', 'Voltage', 'Spec', 'PartNumber', 'Quantity Per PCB']
+    columns = {
+        'Part': ['Part'],
+        'Value': ['Value'],
+        'Tolerance': ['Tolerance'],
+        'Voltage': ['Voltage'],
+        'Spec': ['Spec'],
+        'FootprintType': ['FootprintType'],
+        'PartNumber': ['PartNumber'],
+        'Quantity': ['Quantity', 'Quantity Per PCB']
+    }
 
     def __init__(self, db):
         self.components = {}
@@ -31,7 +40,7 @@ class BOM:
             re = self.parttype_res.get(t)
             if re.match(part):
                 return t
-        return None
+        return part
 
     def tidy_value(self, v):
         if v:
@@ -43,21 +52,30 @@ class BOM:
         else:
             return 0
 
+    def get_entry_value(self, entry, keys, default=None):
+        for k in keys:
+            v = entry.get(k)
+            if v:
+                return self.tidy_value(v)
+        return default
+
     def add_entry(self, entry):
-        part = self.tidy_value(entry.get(self.columns[0]))
+        part = self.get_entry_value(entry, self.columns['Part'])
         parttype = self.part_to_type(part)
-        value = self.tidy_value(entry.get(self.columns[1]))
-        tolerance = self.tidy_value(entry.get(self.columns[2]))
-        voltage = self.tidy_value(entry.get(self.columns[3]))
-        spec = self.tidy_value(entry.get(self.columns[4]))
-        partnumber = self.tidy_value(entry.get(self.columns[5]))
-        quantity = self.tidy_value(entry.get(self.columns[6]))
+        value = self.get_entry_value(entry, self.columns['Value'])
+        tolerance = self.get_entry_value(entry, self.columns['Tolerance'])
+        voltage = self.get_entry_value(entry, self.columns['Voltage'])
+        spec = self.get_entry_value(entry, self.columns['Spec'])
+        footprint_type = self.get_entry_value(entry, self.columns['FootprintType'], 'tht')
+        partnumber = self.get_entry_value(entry, self.columns['PartNumber'])
+        quantity = self.get_entry_value(entry, self.columns['Quantity'])
 
         args = {
             'parttype': parttype,
             'value': value,
             'tolerance': tolerance,
             # 'voltage': voltage,
+            'footprint_type': footprint_type,
             'spec': spec,
         }
         if partnumber:

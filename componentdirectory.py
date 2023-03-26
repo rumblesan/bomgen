@@ -9,7 +9,8 @@ class ComponentDirectory(object):
         self.con = sqlite3.connect('dbs/components.db')
         self.con.row_factory = sqlite3.Row
         self.cur = self.con.cursor()
-        self.attribute_names = ['partnumber', 'parttype', 'value', 'footprint',
+        self.attribute_names = ['partnumber', 'parttype', 'value',
+                                'footprint', 'footprint_type',
                                 'tolerance', 'power_rating', 'voltage', 'spec']
         self.column_names = [c.replace(" ", "_") for c in self.attribute_names]
         self.supplier_names = ['mouser', 'farnell', 'other']
@@ -22,6 +23,7 @@ class ComponentDirectory(object):
                          partnumber TEXT PRIMARY KEY NOT NULL,
                          parttype TEXT NOT NULL,
                          footprint TEXT,
+                         footprint_type TEXT,
                          value TEXT,
                          tolerance TEXT,
                          power_rating TEXT,
@@ -46,6 +48,7 @@ class ComponentDirectory(object):
                       partnumber=None,
                       parttype=None,
                       footprint=None,
+                      footprint_type=None,
                       value=None,
                       tolerance=None,
                       power_rating=None,
@@ -53,10 +56,11 @@ class ComponentDirectory(object):
                       spec=None):
 
         self.cur.execute('''INSERT OR REPLACE INTO components
-                             values (?, ?, ?, ?, ?, ?, ?, ?)''',
+                             values (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
                          (partnumber,
                           parttype,
                           footprint,
+                          footprint_type,
                           value,
                           tolerance,
                           power_rating,
@@ -82,6 +86,7 @@ class ComponentDirectory(object):
                        tolerance=None,
                        power_rating=None,
                        voltage=None,
+                       footprint_type=None,
                        spec=None):
         args = {
             'value': value,
@@ -91,6 +96,7 @@ class ComponentDirectory(object):
             'tolerance': tolerance,
             'power_rating': power_rating,
             'voltage': voltage,
+            'footprint_type': footprint_type,
             'spec': spec
         }
         qry = '''SELECT * FROM components AS c
