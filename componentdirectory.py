@@ -55,18 +55,23 @@ class ComponentDirectory(object):
                       voltage=None,
                       spec=None):
 
-        self.cur.execute('''INSERT OR REPLACE INTO components
-                             values (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
-                         (partnumber,
-                          parttype,
-                          footprint,
-                          footprint_type,
-                          value,
-                          tolerance,
-                          power_rating,
-                          voltage,
-                          spec))
-        self.con.commit()
+        try:
+            self.cur.execute('''INSERT OR REPLACE INTO components
+                                 values (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                             (partnumber,
+                              parttype,
+                              footprint,
+                              footprint_type,
+                              value,
+                              tolerance,
+                              power_rating,
+                              voltage,
+                              spec))
+            self.con.commit()
+        except sqlite3.IntegrityError as err:
+            print(err)
+            print(partnumber, parttype, footprint, footprint_type,
+                  value, tolerance, power_rating, voltage, spec)
 
     def add_order_numbers(self, partnumber, supplier_order_numbers):
         args = {'partnumber': partnumber}

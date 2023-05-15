@@ -7,15 +7,20 @@ class BOM:
         "c_polarized": "capacitor",
         "d": "diode",
         "d_schottky": "diode",
+        "d_zener": "diode",
         "r": "resistor",
         "r_potentiometer": "potentiometer",
         "r_potentiometer_trim": "trimmer",
     }
 
     parttype_res = {
+        "transistor": re.compile(r".*transistor.*"),
         "switch": re.compile(r"sw_.*"),
         "connector": re.compile(r"conn_.*"),
         "socket": re.compile(r"bananasocket_.*"),
+        "socket": re.compile(r".*mono jack.*"),
+        "connector": re.compile(r"eurorack power.*"),
+        "connector": re.compile(r"conn_\d+x\d+.*"),
     }
 
     columns = {
@@ -40,6 +45,7 @@ class BOM:
             re = self.parttype_res.get(t)
             if re.match(part):
                 return t
+        print(part)
         return part
 
     def tidy_value(self, v):
@@ -68,7 +74,7 @@ class BOM:
         spec = self.get_entry_value(entry, self.columns['Spec'])
         footprint_type = self.get_entry_value(entry, self.columns['FootprintType'], 'tht')
         partnumber = self.get_entry_value(entry, self.columns['PartNumber'])
-        quantity = self.get_entry_value(entry, self.columns['Quantity'])
+        quantity = int(self.get_entry_value(entry, self.columns['Quantity']))
 
         args = {
             'parttype': parttype,
@@ -104,7 +110,7 @@ class BOM:
             self.components[key]["quantity"] += quantity
         else:
             self.components[key] = {
-                "parttype": component.get('parttype', ''),
+                "parttype": component.get('parttype', parttype),
                 "value": component.get('value', value),
                 "spec": component.get('spec', spec),
                 "part number": partnumber,

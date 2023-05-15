@@ -26,8 +26,6 @@ def read_input_bom(bom_path):
         components = [p for p in bom_reader]
     return components
 
-cap_re = re.compile(r"(\d+)([pnu])(\d*)f$")
-res_re = re.compile(r"(\d+)([kmr])(\d*)$")
 
 
 def value_to_sortable(comp_type, value):
@@ -84,6 +82,7 @@ def combine_boms(input_boms, directory):
             final_bom.add_entry(entry)
     return final_bom.get_output()
 
+
 def update_parts_db(urls):
     db = ComponentDirectory()
     db.cleanup()
@@ -96,13 +95,15 @@ def update_parts_db(urls):
             db.load_csv_row(row)
     del(db)
 
+
 if __name__ == '__main__':
     config = ConfigParser()
     config.read(config_file)
     urls = config['ComponentURLs']
     component_urls = [urls[key] for key in urls.keys()]
 
-    parser = argparse.ArgumentParser(description='put together an order from BOMs')
+    parser = argparse.ArgumentParser(
+        description='put together an order from BOMs')
     parser.add_argument(
         'cmd', choices=['gen', 'update'], help='command to run')
     parser.add_argument('-b', '--boms', nargs='*',
