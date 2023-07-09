@@ -15,6 +15,8 @@ from bom import BOM
 
 config_file = 'config.ini'
 
+cap_re = re.compile(r"(\d+)([pnu])(\d*)f$")
+res_re = re.compile(r"(\d+)([kmr])(\d*)$")
 
 def read_input_bom(bom_path):
     components = []
